@@ -18,12 +18,12 @@ Procedure FileSearchAROS(const pathname, FileMask: string; const DoRecursive: bo
   directory, only to the file.
   This routine is by no means foolproof and definitely needs a bit more TLC. 
 } 
-
+ 
 Var
-  level       : longint;    // Indentination level for printing 
+  level       : longint;    // Indentation level for printing 
 var  
   ap          : PAnchorPath; 
-  error       : longint;    // Holds returncode for AROS' match-functions
+  error       : longint;    // Holds return code for AROS' match-functions
   s           : String;     // Temp storage used for post entry-type printing
   filename    : String;     // String holds current filename entry (only filename part) 
   filemaskTOK : pChar;      // C-String, hold tokenized mask needed by AROS API
@@ -76,10 +76,10 @@ begin
             that we do not deal with a directory, but are dealing with an 
             actual file. 
           } 
-
+ 
           { Use FileInfoBlock struct to retrieve filename of current entry } 
           Filename := ap^.ap_Info.fib_FileName; 
-
+ 
           { do something nice, and emit the filename } 
           writeln('filename = ',filename); 
  
@@ -90,19 +90,19 @@ begin
             filemask. 
             Is there perhaps a way to do this ? Lets try:                   
           } 
-
+ 
           { allocate heapmem for pchar: fpc business. Size taken from AutoDocs } 
           FileMaskTOK := stralloc((Length(FileMask) * 2) + 2); 
-
+ 
           { create a tokenized filemask with a trickery cast. Size taken from AutoDocs } 
           ParsePatternNoCase(pchar(FileMask), FileMaskTOK, (Length(FileMask) * 2) + 2); 
-
+ 
           { match a pattern } 
           IsMatch := MatchPatternNoCase(FileMaskTOK, pchar(FileName)); 
-
+ 
           { check the result, if matched then emit something }  
           if IsMatch then writeln('It seems that the above printed filename matches the filemask o/');           
-
+ 
           { return allocated heapmem for pchar: fpc business }           
           strdispose(FileMaskTOK); 
         end   
@@ -115,8 +115,8 @@ begin
         if ((ap^.ap_Info.fib_DirEntryType >= 0) and DoRecursive) then 
         begin 
           ap^.ap_Flags := (ap^.ap_Flags or APF_DODIR);
-
-          { For every directory entered, update indentination level accordingly }
+ 
+          { For every directory entered, update indentation level accordingly }
           inc(level); 
         end; 
  
