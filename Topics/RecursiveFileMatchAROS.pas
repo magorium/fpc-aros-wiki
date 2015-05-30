@@ -1,34 +1,34 @@
-Program RecurseFilematch; 
+Program RecursiveFileMatchAROS;
  
 {$MODE OBJFPC}{$H+} 
  
 uses 
-  aros_exec, 
-  aros_dos, 
+  exec, 
+  amigados, 
   SysUtils; 
  
  
  
-Procedure FileSearchAROS(const pathname, FileMask: string; const DoRecursive: boolean); 
+Procedure FileSearchAROS(const pathname, FileMask: string; const DoRecursive: boolean);
 { 
   Routine based on thomas-rapps post ->  
    http://eab.abime.net/showpost.php?p=660659&postcount=5 
-  FileSearch routine that can search directories recursive (no restrictions) and match 
-  a given file pattern. The pattern is not applied to the directory, only to the file. 
-  This routine is not foolproof and definatly needs a bit more TLC. 
-  Sorry for the ugly code. 
+  FileSearch routine that can search directories recursive (no restrictions) 
+  and match a given file pattern. The FileMask pattern is not applied to the 
+  directory, only to the file.
+  This routine is by no means foolproof and definitely needs a bit more TLC. 
 } 
- 
+
+Var
+  level       : longint;    // Indentination level for printing 
 var  
   ap          : PAnchorPath; 
-  error,  
-  level,  
-  i           : longint; 
- 
-  s,                        // We need a temp string because fpc does not have a ? operator 
-  filename    : String;     // String to hold the filename (and only filename part) 
-  filemaskTOK : pChar;      // C-String to hold the tokenized mask needed for AROS API Routine 
+  error       : longint;    // Holds returncode for AROS' match-functions
+  s           : String;     // Temp storage used for post entry-type printing
+  filename    : String;     // String holds current filename entry (only filename part) 
+  filemaskTOK : pChar;      // C-String, hold tokenized mask needed by AROS API
   isMatch     : Longbool;   // Temp boolean placeholder to hold the match result 
+  i           : longint;    // used for counting 
 begin 
   ap := AllocVec(sizeof(TAnchorPath) + 1024, MEMF_CLEAR); 
   if (ap <> nil) then 
@@ -39,7 +39,7 @@ begin
  
   level := 0; 
  
-  error := MatchFirst(pathname, ap); 
+  error := MatchFirst(pchar(pathname), ap); 
  
   if (error = 0) and (ap^.ap_Info.fib_DirEntryType >= 0) 
     then ap^.ap_Flags := ap^.ap_Flags or APF_DODIR; 
@@ -55,10 +55,9 @@ begin
     else 
     begin 
       { 
-        Soft linked objects are returned by the scanner 
-        but they need special treatments; we are merely 
-        ignoring them here in order to keep this example 
-        simple 
+        Soft linked objects are returned by the scanner but they need 
+        special treatments; we are merely ignoring them here in order 
+        to keep this example simple
       } 
       if (ap^.ap_Info.fib_DirEntryType <> ST_SOFTLINK) then 
       begin 
@@ -69,18 +68,18 @@ begin
  
         if (ap^.ap_Info.fib_DirEntryType < 0) then 
         begin 
-          s := '';  { no ? operator: results in dumb code to mimic the behaviour } 
+          { Initial postfix printing string is empty (=file) }
+          s := '';  
  
           { 
-            According to AutoDocs/FileInfoBlock struct, we can now 
-            be certain that we do not deal with a directory, but are 
-            dealing with an actual file. 
-            So if we can find a way to determine the name of the 
-            file then we could do nice things with it, such as  
-            emitting the name. 
+            According to AutoDocs/FileInfoBlock struct, we can now be certain 
+            that we do not deal with a directory, but are dealing with an 
+            actual file. 
           } 
-          { get the name } 
+
+          { Use FileInfoBlock struct to retrieve filename of current entry } 
           Filename := ap^.ap_Info.fib_FileName; 
+
           { do something nice, and emit the filename } 
           writeln('filename = ',filename); 
  
@@ -91,25 +90,33 @@ begin
             filemask. 
             Is there perhaps a way to do this ? Lets try:                   
           } 
+
           { allocate heapmem for pchar: fpc business. Size taken from AutoDocs } 
           FileMaskTOK := stralloc((Length(FileMask) * 2) + 2); 
+
           { create a tokenized filemask with a trickery cast. Size taken from AutoDocs } 
           ParsePatternNoCase(pchar(FileMask), FileMaskTOK, (Length(FileMask) * 2) + 2); 
+
           { match a pattern } 
-          IsMatch := MatchPatternNoCase(FileMaskTOK, FileName); 
-          { check the result, if we match we emit the name, or you can do whatever with it } 
+          IsMatch := MatchPatternNoCase(FileMaskTOK, pchar(FileName)); 
+
+          { check the result, if matched then emit something }  
           if IsMatch then writeln('It seems that the above printed filename matches the filemask o/');           
+
           { return allocated heapmem for pchar: fpc business }           
           strdispose(FileMaskTOK); 
         end   
-        else s := ' (Dir)'; { no ? operator: results in dumb code to mimic the behaviour } 
+        else s := ' (Dir)'; // Change postfix printing string to read directory
  
+        // Emit the current entry. ap_Buf contains the full path + filename
         writeln(format('%s%s',[ap^.ap_Buf, s])); 
  
         { If this is a directory, enter it } 
         if ((ap^.ap_Info.fib_DirEntryType >= 0) and DoRecursive) then 
         begin 
-          ap^.ap_Flags := (ap^.ap_Flags or APF_DODIR); 
+          ap^.ap_Flags := (ap^.ap_Flags or APF_DODIR);
+
+          { For every directory entered, update indentination level accordingly }
           inc(level); 
         end; 
  
@@ -125,9 +132,9 @@ end;
  
  
 Begin 
-  WriteLn('start'); 
+  WriteLn('enter'); 
  
   FileSearchAROS('Ram:','#?.info', true); 
  
-  Writeln('end'); 
+  Writeln('leave'); 
 End.
