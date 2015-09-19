@@ -2,9 +2,11 @@ unit hostlib;
  
 
 {
-  Hostlib.resource
+  hostlib.resource
 }
  
+{$MODE OBJFPC}{$H+}
+
 
 interface
  
