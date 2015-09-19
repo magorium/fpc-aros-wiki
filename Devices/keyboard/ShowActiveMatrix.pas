@@ -1,6 +1,8 @@
 program ShowActiveMatrix;
  
 {
+  Example 1: Show active keyboard matrix
+
   Small example that shows how to read and display the current keyboard matrix. 
   
   Note that the matrix result only contains the current keys being pressed.
