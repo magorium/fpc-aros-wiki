@@ -24,7 +24,7 @@ const
 
 
 var
-  HostLibBase   : pLibrary;
+  HostLibBase   : APTR;
  
  
   function  HostLib_Open(const filename: PChar; error: PPChar): PVoid; syscall HostLibBase 1;
