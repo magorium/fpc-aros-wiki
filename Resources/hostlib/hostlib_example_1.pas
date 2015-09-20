@@ -103,12 +103,12 @@ begin
         WriteLn('n was ok');
  
         // checking functions
-        write('function kernel32.dll->GetEnvironmentStrings is ');
+        Write('function kernel32.dll->GetEnvironmentStrings is ');
         if (pointer(kernel32iface^.GetEnvironmentStringsA) <> nil)
         then WriteLn('valid')
         else WriteLn('invalid');
  
-        write('function kernel32.dll->FreeEnvironmentString is ');
+        Write('function kernel32.dll->FreeEnvironmentString is ');
         if (pointer(kernel32iface^.FreeEnvironmentStringsA) <> nil)
         then WriteLn('valid')
         else WriteLn('invalid');
