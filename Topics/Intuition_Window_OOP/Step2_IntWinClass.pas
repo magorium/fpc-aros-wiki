@@ -56,6 +56,13 @@ end;
 Constructor TIntuitionWindowClass.Create;
 begin
   Inherited;
+
+  FHandle := nil;
+  FLeft   := 10;
+  FTop    := 10;
+  FHeight := 30;
+  FWidth  := 30;
+  FTitle  := '';
 end;
 
 
