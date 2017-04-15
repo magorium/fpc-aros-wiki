@@ -15,7 +15,7 @@ type
     FTop    : LongInt;
     FWidth  : LongInt;
     FHeight : LongInt;
-    FTitle  : String;
+    FTitle  : AnsiString;
   protected
   public
     Constructor Create;  
